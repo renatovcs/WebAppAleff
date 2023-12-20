@@ -22,7 +22,7 @@ namespace WebAppAleff.Application.Models
         [Required(ErrorMessage = "Informe uma senha.")]
         [RegularExpression(@"^(?!.*(.).*\1)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()-+]).{10,}$",
         ErrorMessage = "A senha deve ter pelo menos 10 caracteres, incluindo pelo menos 1 dígito numérico, 1 letra minúscula, 1 letra maiúscula, não possuir caracteres repetidos nem espaços em branco e ao menos 1 caractere especial como !@#$%^&*()-+.")]
-        public string Senha { private get; set; }
+        public string Senha { get; set; }
 
         public bool IsAdmin { get; set; }
 
