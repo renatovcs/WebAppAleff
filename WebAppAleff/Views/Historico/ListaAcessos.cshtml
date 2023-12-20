@@ -1,0 +1,188 @@
+﻿@model List<WebAppAleff.Application.Models.HistoricoModel>
+@{
+    ViewBag.Title = "Lista de Acessos";
+}
+
+<style>
+    acessos {
+        width: 70%;
+        margin: 0 auto;
+    }
+
+    lista_cabecalho {
+        border-bottom: 1px #dddddd solid;
+    }
+
+    lista_conteudo {
+        margin-top: 20px;
+    }
+
+    #cabecalho_grid {
+        margin-bottom: 20px;
+    }
+</style>
+<div id="acessos">
+    @Html.AntiForgeryToken()
+    <section id="lista_cabecalho">
+        <h1>@ViewBag.Tile</h1>
+    </section>
+
+    <section id="lista_conteudo">
+        <div id="cabecalho_grid" class="row col-md-12">
+            <div class="row col-md-11">
+                @Html.DropDownList("ddl_usuarios", (SelectList)ViewBag.ListaUsuarios)
+            </div>
+            <div class="row col-md-1">
+                <button class="btn btn-primary" onclick="exportarParaXML()"> XML</button>
+            </div>
+            
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table id="grid_lista" class="table table-bordered table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Acesso</th>
+                            <th>Nome</th>
+                            <th>IP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.DataHora</td>
+                                <td>@item.NomeUsuario</td>
+                                <td>@item.EnderecoIp</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+
+<h2>Gráfico de Linhas</h2>
+
+
+@{
+    var horas = ViewBag.Horas;
+    var acessos = ViewBag.Acessos;
+
+    var horasSerializado = Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(horas));
+    var acessosSerializado = Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(acessos));
+}
+
+<canvas id="grafico" width="400" height="150">
+</canvas>
+
+@section Scripts{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xmlserializer@0.5.0/umd/xmlserializer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script>
+        var horas = @horasSerializado,
+            acessos = @acessosSerializado;
+
+        $(document)
+            .ready(function () {
+                var ctx = $('#grafico');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: horas,
+                        datasets: [{
+                            data: acessos,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        legend: {
+                            display: false
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+                    }
+                });
+            });
+    </script>
+
+    <script src="~/Scripts/moment-with-locales.min.js"></script>
+    <script>
+
+        moment.locale('pt-br');
+
+        function add_token(data) {
+            data.__RequestVerificationToken = $('[name=__RequestVerificationToken]').val();
+            return data;
+        }
+
+        function criar_linha_grid(dados) {
+
+            var data = moment(dados.DataHora).fromNow();
+
+            var ret =
+                '<tr>' +
+                    '<td>' + data + '</td>' +
+                    '<td>' + dados.NomeUsuario + '</td>' +
+                    '<td>' + dados.EnderecoIp + '</td>' +
+                '</tr>';
+
+            return ret;
+        }
+
+        $(document).on('change', '#ddl_usuarios', function () {
+            var ddl = $(this),
+                usuarioId = ddl.val(),
+                url = '@Url.Action("ListaAcessosUsuario", "Historico")',
+                param = { 'usuarioId': usuarioId };;
+
+            $.post(url, add_token(param), function (response) {
+                if (response) {
+
+                    var table = $('#grid_lista').find('tbody');
+
+                    table.empty();
+
+                    for (var i = 0; i < response.length; i++) {
+                        table.append(criar_linha_grid(response[i]));
+                    }
+                }
+
+            });
+        });
+
+        function exportarParaXML() {
+            var tabela = $('#grid_lista');
+            var linhas = tabela.find('tbody tr');
+
+            var xmlString = '<data>';
+
+            linhas.each(function (index, elemento) {
+                var colunas = $(elemento).find('td');
+                xmlString += '<row>';
+                colunas.each(function (i, coluna) {
+                    xmlString += '<' + tabela.find('thead th').eq(i).text().toLowerCase() + '>';
+                    xmlString += $(coluna).text();
+                    xmlString += '</' + tabela.find('thead th').eq(i).text().toLowerCase() + '>';
+                });
+                xmlString += '</row>';
+            });
+
+            xmlString += '</data>';
+
+            var blob = new Blob([xmlString], { type: 'application/xml' });
+
+            saveAs(blob, 'logacesso.xml');
+        }
+
+    </script>
+}
