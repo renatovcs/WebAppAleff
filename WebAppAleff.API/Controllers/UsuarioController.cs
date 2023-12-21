@@ -8,6 +8,8 @@ using WebAppAleff.Application.Models;
 using WebAppAleff.Domain.Entities;
 using HttpGetAttribute = System.Web.Http.HttpGetAttribute;
 using RouteAttribute = System.Web.Http.RouteAttribute;
+using Serilog;
+using Serilog.Core;
 
 namespace WebAppAleff.API.Controllers
 {
@@ -17,6 +19,10 @@ namespace WebAppAleff.API.Controllers
         public IHttpActionResult Get()
         {
             var lista = UsuarioModel.RecuperarLista();
+            
+            var url = Request.RequestUri.AbsoluteUri;
+
+            Log.Information("GET {url} {datahora}", url, DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"));
 
             return Ok(lista);
         }
@@ -24,6 +30,11 @@ namespace WebAppAleff.API.Controllers
 
         public IHttpActionResult Get(int id)
         {
+
+            var url = Request.RequestUri.AbsoluteUri;
+
+            Log.Information("GET {url} {datahora}", url, DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"));
+
 
             var usuario = UsuarioModel.RecuperarUsuario(id);
 
@@ -40,6 +51,11 @@ namespace WebAppAleff.API.Controllers
 
         public IHttpActionResult Post([FromBody] UsuarioModel value)
         {
+
+            var url = Request.RequestUri.AbsoluteUri;
+
+            Log.Information("POST {url} {datahora}", url, DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"));
+
             try
             {
                 var ret = UsuarioModel.Incluir(value);
@@ -62,6 +78,12 @@ namespace WebAppAleff.API.Controllers
 
         public IHttpActionResult Put([FromBody] UsuarioModel value)
         {
+
+            var url = Request.RequestUri.AbsoluteUri;
+
+            Log.Information("PUT {url} {datahora}", url, DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"));
+
+
             try
             {
                 var ret = UsuarioModel.Alterar(value);
@@ -83,6 +105,12 @@ namespace WebAppAleff.API.Controllers
 
         public IHttpActionResult Delete(int id)
         {
+
+            var url = Request.RequestUri.AbsoluteUri;
+
+            Log.Information("DELETE {url} {datahora}", url, DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"));
+
+
             try
             {
                 if (UsuarioModel.Excluir(id))
@@ -104,6 +132,11 @@ namespace WebAppAleff.API.Controllers
         [Route("api/acesso/lista")]
         public IHttpActionResult ListaAcessosUsuairo(int id)
         {
+
+            var url = Request.RequestUri.AbsoluteUri;
+
+            Log.Information("GET {url} {datahora}", url, DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"));
+
             var lista = HistoricoModel.AcessosHora(id);
 
             if (lista != null)
