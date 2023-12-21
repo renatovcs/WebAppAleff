@@ -33,29 +33,35 @@ namespace WebAppAleff.Application.Services
             if (usuarioId > 0)
                 listaParametros.Add(new SqlParameter("@usuarioId", usuarioId));
 
-            dt = (DataTable)DataBase.ExecuteCommand(sql, CommandType.Text, listaParametros, TypeCommand.ExecuteDataTable);
-
-            List<AcessosHoraDto> listaAcessosHora = new List<AcessosHoraDto>();
-
-            if (dt.Rows.Count > 0)
+            try
             {
-                foreach (DataRow drRow in dt.Rows)
-                {
-                    AcessosHoraDto _acessosHoraDto = new AcessosHoraDto(
-                        Convert.ToInt32(drRow[0]),
-                        Convert.ToInt32(drRow[1])
-                        );
 
-                    listaAcessosHora.Add(_acessosHoraDto);
+                dt = (DataTable)DataBase.ExecuteCommand(sql, CommandType.Text, listaParametros, TypeCommand.ExecuteDataTable);
+
+                List<AcessosHoraDto> listaAcessosHora = new List<AcessosHoraDto>();
+
+                if (dt.Rows.Count > 0)
+                {
+                    foreach (DataRow drRow in dt.Rows)
+                    {
+                        AcessosHoraDto _acessosHoraDto = new AcessosHoraDto(
+                            Convert.ToInt32(drRow[0]),
+                            Convert.ToInt32(drRow[1])
+                            );
+
+                        listaAcessosHora.Add(_acessosHoraDto);
+                    }
+
+                }
+                else
+                {
+                    listaAcessosHora = null;
                 }
 
-            }
-            else
-            {
-                listaAcessosHora = null;
-            }
+                return listaAcessosHora;
 
-            return listaAcessosHora;
+            }
+            catch { return null; }
 
 
         }
@@ -93,9 +99,9 @@ namespace WebAppAleff.Application.Services
                 return listaUsuarios;
 
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                return null;
             }
         }
 
@@ -107,9 +113,17 @@ namespace WebAppAleff.Application.Services
 
             var sql = "SELECT distinct la.UsuarioId, u.Nome FROM LogAcesso la JOIN Usuario u ON la.UsuarioId = u.UsuarioId ORDER BY u.Nome desc";
 
-            dt = (DataTable)DataBase.ExecuteCommand(sql, CommandType.Text, null, TypeCommand.ExecuteDataTable);
+            try
+            {
+                dt = (DataTable)DataBase.ExecuteCommand(sql, CommandType.Text, null, TypeCommand.ExecuteDataTable);
 
-            return dt;
+                return dt;
+            }
+            catch
+            {
+                return null;
+            }
+
         }
 
         private static List<Acesso> GetListaAcesso(DataTable tabela)
@@ -142,9 +156,9 @@ namespace WebAppAleff.Application.Services
                 return listaAcessos;
 
             }
-            catch (Exception ex)
+            catch 
             {
-                throw ex;
+                return null;
             }
         }
 
@@ -162,9 +176,17 @@ namespace WebAppAleff.Application.Services
             if (usuarioId > 0)
                 listaParametros.Add(new SqlParameter("@usuarioId", usuarioId));
 
-            dt = (DataTable)DataBase.ExecuteCommand(sql, CommandType.Text, listaParametros, TypeCommand.ExecuteDataTable);
+            try
+            {
+                dt = (DataTable)DataBase.ExecuteCommand(sql, CommandType.Text, listaParametros, TypeCommand.ExecuteDataTable);
 
-            return dt;
+                return dt;
+            }
+            catch
+            {
+                return null;
+            }
+
         }
     }
 }

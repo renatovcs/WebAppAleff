@@ -80,7 +80,7 @@ namespace WebAppAleff.Application.Services
             }
         }
 
-        private static void LogAcesso(Usuario usuario)
+        private static int LogAcesso(Usuario usuario)
         {
             var query = "INSERT INTO LogAcesso(UsuarioId, DataHoraAcesso, EnderecoIp) VALUES (@usuarioid, @datahoraacesso, @enderecoip)";
 
@@ -91,12 +91,19 @@ namespace WebAppAleff.Application.Services
                 new SqlParameter("@enderecoip", HttpContext.Current.Request.UserHostAddress)
 
             };
-
-            DataBase.ExecuteCommand(query, CommandType.Text, listaParametros, TypeCommand.ExecuteNonQuery);
+            try
+            {
+                return (int)DataBase.ExecuteCommand(query, CommandType.Text, listaParametros, TypeCommand.ExecuteNonQuery);
+            }
+            catch
+            {
+                return 0;
+            }
+            
 
         }
 
-        public static bool Excluir(int usuarioId)
+        public static int Excluir(int usuarioId)
         {
             // o ideal seria uma exclusão lógica, necessariamente alterando a estrutura de dados exigida.
             
@@ -109,13 +116,11 @@ namespace WebAppAleff.Application.Services
 
             try
             {
-                DataBase.ExecuteCommand(query, CommandType.Text, listaParametros, TypeCommand.ExecuteNonQuery);
-
-                return true;
+                return (int)DataBase.ExecuteCommand(query, CommandType.Text, listaParametros, TypeCommand.ExecuteNonQuery);
             }
             catch
             {
-                return false;
+                return 0;
             }
 
         }
@@ -174,9 +179,17 @@ namespace WebAppAleff.Application.Services
 
             var cmd = "sp_ListaUsuario";
 
-            dt = (DataTable)DataBase.ExecuteCommand(cmd, CommandType.StoredProcedure, null, TypeCommand.ExecuteDataTable);
+            try
+            {
+                dt = (DataTable)DataBase.ExecuteCommand(cmd, CommandType.StoredProcedure, null, TypeCommand.ExecuteDataTable);
 
-            return dt;
+                return dt;
+            }
+            catch
+            {
+                return null;
+            }
+
         }
 
         public static DataTable ExibirTodos()
@@ -185,9 +198,17 @@ namespace WebAppAleff.Application.Services
 
             var cmd = "sp_ListaUsuario";
 
-            dt = (DataTable)DataBase.ExecuteCommand(cmd, CommandType.StoredProcedure, null, TypeCommand.ExecuteDataTable);
+            try
+            {
+                dt = (DataTable)DataBase.ExecuteCommand(cmd, CommandType.StoredProcedure, null, TypeCommand.ExecuteDataTable);
 
-            return dt;
+                return dt;
+            }
+            catch
+            {
+                return null;
+            }
+
         }
 
 
@@ -219,9 +240,9 @@ namespace WebAppAleff.Application.Services
                 return usu;
 
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                return null;
             }
         }
 

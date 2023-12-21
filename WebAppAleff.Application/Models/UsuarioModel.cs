@@ -93,7 +93,7 @@ namespace WebAppAleff.Application.Models
         public static bool Excluir(int usuarioId)
         {
 
-            return UsuarioService.Excluir(usuarioId);
+            return (UsuarioService.Excluir(usuarioId)>0);
 
         }
 
